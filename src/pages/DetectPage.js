@@ -20,7 +20,7 @@ export default function DetectPage() {
   }
   return (
     <View style={{ flex: 1 }}>
-      <Camera style={{ flex: 1 }} type={Camera.Constants.Type.back}>
+      <Camera style={{ flex: 1, overflow: 'hidden' }} ratio="16:9" type={Camera.Constants.Type.back}>
       </Camera>
     </View>
   );
