@@ -4,7 +4,8 @@ import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import Toast from 'react-native-easy-toast';
 import { Camera } from 'expo-camera';
 import * as Speech from 'expo-speech';
-
+import { Audio } from 'expo-av';
+import { Buffer } from 'buffer';
 
 const OCRPage = () => {
     const [hasPermission, setHasPermission] = useState(null);
@@ -13,8 +14,27 @@ const OCRPage = () => {
     const windowHeight = Dimensions.get("window").height;
 
     useEffect(() => {
-        Speech.speak('안녕하세요, 눈길 OCR 입니다. 무엇을 도와드릴까요?');
+        speakTextWithBackendTTS("안녕하세요, 눈길 OCR 입니다. 무엇을 도와드릴까요?");
     }, []);
+
+    const speakTextWithBackendTTS = async (text) => {
+        try {
+            const apiUrl = 'http://172.10.5.132:80';
+            const response = await axios.post(`${apiUrl}/tts`, { text }, { responseType: 'arraybuffer' });
+            console.log("성공!");
+            console.log(response);
+          
+            // Create a new Sound object and load the audio data
+            const soundObject = new Audio.Sound();
+            await soundObject.loadAsync({ uri: 'data:audio/mpeg;base64,' + Buffer.from(response.data).toString('base64') });
+            await soundObject.playAsync();
+
+        } catch (error) {
+          console.log("실패!");
+          console.log('Error while using Backend TTS API:', error);
+        }
+      };
+      
 
     // Toast 메세지 출력
     const showCopyToast = useCallback(() => {
@@ -51,8 +71,9 @@ const OCRPage = () => {
             console.log('OCR result:', text);
     
             // 읽어주기
-            Speech.speak(text);
-          } catch (error) {
+            // Speech.speak(text);
+            speakTextWithBackendTTS(text);
+            } catch (error) {
             console.log(error);
           }
         }
