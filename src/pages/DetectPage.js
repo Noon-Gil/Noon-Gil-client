@@ -13,7 +13,7 @@ const DetectPage = () => {
   const windowHeight = Dimensions.get("window").height;
 
   useEffect(() => {
-    Speech.speak('안녕하세요, 눈길입니다. 무엇을 도와드릴까요?');
+    Speech.speak('안녕하세요, 눈길 Object Detection 입니다. 무엇을 도와드릴까요?');
   }, []);
 
   // Toast 메세지 출력

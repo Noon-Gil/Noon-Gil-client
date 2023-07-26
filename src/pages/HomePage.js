@@ -10,6 +10,10 @@ const HomePage = ({ navigation }) => {
         title="Go to Object Detection"
         onPress={() => navigation.navigate('Detect')}
       />
+      <Button
+        title="Go to OCR"
+        onPress={() => navigation.navigate('OCR')}
+      />
     </View>
   );
 }
