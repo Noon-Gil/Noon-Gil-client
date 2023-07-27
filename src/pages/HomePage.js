@@ -19,8 +19,8 @@ const HomePage = ({ navigation }) => {
   const speakTextWithBackendTTS = async (text) => {
     try {
       const response = await axios.post(`${apiUrl}/tts`, { text }, { responseType: 'arraybuffer' });
-      console.log("성공!");
-    
+      console.log("성공! : ",  text);
+  
       // Create a new Sound object and load the audio data
       const soundObject = new Audio.Sound();
       await soundObject.loadAsync({ uri: 'data:audio/mpeg;base64,' + Buffer.from(response.data).toString('base64') });
@@ -87,6 +87,8 @@ const HomePage = ({ navigation }) => {
           OCR();
         } else if(response.data.content === "face-recognition") {
           faceRecognition();
+        } else if(response.data.content === "emotion") {
+          emotion();
         } else {
           throw error("fail to catch voice");
         }
@@ -138,6 +140,45 @@ const HomePage = ({ navigation }) => {
       speakTextWithBackendTTS(response.data.content);
     }
   }
+  const emotion = async () => {
+    await speakTextWithBackendTTS("얼굴 인식을 위해 사진을 촬영할게요.");
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // 사진 촬영하기
+    if(cameraRef){
+      const data= await cameraRef.current.takePictureAsync({
+        quality:1,
+        exif:true
+      });
+      const manipResult = await ImageManipulator.manipulateAsync(
+        data.uri,
+        [{ rotate: 90 }, { flip: ImageManipulator.FlipType.Vertical }, { flip: ImageManipulator.FlipType.Horizontal }],
+        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      console.log('data: ', data.uri);
+
+      // 사진 제출폼 설정
+      const image = {
+        name: "image",
+        type: "image/jpg",
+        uri: manipResult.uri,
+      }
+      const formData = new FormData();
+      formData.append('name', image);
+      const headers = {
+        "Content-Type": "multipart/form-data",
+      };
+    
+      // 폼 제출 및 대기
+      console.log("uploading...");
+      const response = await axios.post(`${apiUrl}/emotion`, formData, {
+        headers: headers,
+        transformRequest: formData => formData,
+      });
+      // 인식 결과를 음성으로 리턴
+      speakTextWithBackendTTS(response.data.content.content);
+    }
+  };
 
   const OCR = async () => {
     // 사진 촬영을 오디오 및 햅틱으로 알리기
@@ -225,8 +266,12 @@ const HomePage = ({ navigation }) => {
       await Audio.requestPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
-    speakTextWithBackendTTS('안녕하세요, 눈길 입니다. 화면을 탭하고 필요한 기능을 말씀해 주세요');
   }, []);
+
+  useEffect(() => {
+    speakTextWithBackendTTS("안녕하세요, 눈길 입니다. 화면을 탭하고 필요한 기능을 말씀해 주세요");
+  }, []);
+
 
   if (hasPermission === null) {
     return <View />;
