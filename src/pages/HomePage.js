@@ -85,6 +85,8 @@ const HomePage = ({ navigation }) => {
           objectDetection();
         } else if(response.data.content === "tts") {
           OCR();
+        } else if(response.data.content === "face-recognition") {
+          faceRecognition();
         } else {
           throw error("fail to catch voice");
         }
@@ -172,6 +174,48 @@ const HomePage = ({ navigation }) => {
       } catch (error) {
         console.log(error);
       }
+    }
+  };
+
+  const faceRecognition = async () => {
+    await speakTextWithBackendTTS("얼굴 인식을 위해 사진을 촬영할게요.");
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // 사진 촬영하기
+    if(cameraRef){
+      const data= await cameraRef.current.takePictureAsync({
+        quality:1,
+        exif:true
+      });
+      const manipResult = await ImageManipulator.manipulateAsync(
+        data.uri,
+        [{ rotate: 90 }, { flip: ImageManipulator.FlipType.Vertical }, { flip: ImageManipulator.FlipType.Horizontal }],
+        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      console.log('data: ', data.uri);
+
+      // 사진 제출폼 설정
+      const image = {
+        name: "image",
+        type: "image/jpg",
+        uri: manipResult.uri,
+      }
+      const formData = new FormData();
+      formData.append('name', image);
+      const headers = {
+        "Content-Type": "multipart/form-data",
+      };
+    
+      // 폼 제출 및 대기
+      console.log("uploading...");
+      const response = await axios.post(`${apiUrl}/face-recognition`, formData, {
+        headers: headers,
+        transformRequest: formData => formData,
+      });
+      // 인식 결과를 음성으로 리턴
+      console.log(response.data)
+      console.log("upload result: ", response.data.content);
+      speakTextWithBackendTTS(response.data.content);
     }
   };
 
