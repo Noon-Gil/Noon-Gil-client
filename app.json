@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "madproj4",
-    "slug": "madproj4",
-    "version": "1.0.0",
+    "name": "눈길",
+    "description": "당신의 눈이 되어줄 친구, 눈길입니다.",
+    "slug": "NoonGil",
+    "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/noongil-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -19,14 +20,20 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/noongil-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.social.noongil"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "sdkVersion": "48.0.0"
+    "sdkVersion": "48.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "ddbe4445-2111-4f58-b4f5-781e0a0fa481"
+      }
+    }
   },
   "name": "madproj4"
 }
