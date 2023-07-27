@@ -90,7 +90,8 @@ const HomePage = ({ navigation }) => {
         } else if(response.data.content === "emotion") {
           emotion();
         } else {
-          throw error("fail to catch voice");
+          // throw error("fail to catch voice");
+          speakTextWithBackendTTS("죄송해요. 다시 말씀해 주세요.");
         }
       }, 4000);
     } catch (err) {
